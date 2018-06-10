@@ -158,7 +158,8 @@ module.exports = class extends Generator {
         spinner.text = chalk.white('Unarchive project files...');
         const done = this.async();
         const folder = this.userOptions.name;
-        const useTs = this.userOptions.ts.toLowerCase() === 'y';
+        // const useTs = this.userOptions.ts.toLowerCase() === 'y';
+        const useTs = false;
         const appPath = path.resolve(process.cwd(), folder);
         const unzipStream = unzip.Extract({
             path: path.resolve(process.cwd(), './')
