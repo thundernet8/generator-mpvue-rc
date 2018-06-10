@@ -30,7 +30,7 @@ module.exports = class extends Generator {
         // user options
         this.userOptions = {
             yarn: 'n',
-            ts: 'n',
+            // ts: 'n',
             appid: 'touristappid'
         };
         this.hasError = false;
@@ -102,12 +102,12 @@ module.exports = class extends Generator {
                         default: 'MIT',
                         required: false
                     },
-                    ts: {
-                        description: chalk.white.bold('use typescript(Y/n)'),
-                        type: 'string',
-                        default: 'n',
-                        required: false
-                    },
+                    // ts: {
+                    //     description: chalk.white.bold('use typescript(Y/n)'),
+                    //     type: 'string',
+                    //     default: 'n',
+                    //     required: false
+                    // },
                     yarn: {
                         description: chalk.white.bold('use yarn(Y/n)'),
                         type: 'string',
