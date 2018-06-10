@@ -1,0 +1,3 @@
+<view>
+    <test words="{{title}}"></test>
+</view>

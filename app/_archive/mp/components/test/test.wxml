@@ -1,0 +1,8 @@
+<!-- slots -->
+<template name="data-v-26bbdd82-default-0"><view class="_p data-v-26bbdd82">node rendered in slot</view></template>
+
+<!-- templates -->
+<template name="card$0060081a"><view class="_div data-v-36dd09bd"><template name="default"></template><view class="_p data-v-36dd09bd card">A card</view> <template data="{{...$root[$k], $root}}" is="{{$slotdefault || 'default'}}"></template></view></template>
+<template name="index$25a83bc2"><view class="_div data-v-26bbdd82 container"><view class="_div data-v-26bbdd82 title">{{title}}</view> <template data="{{...$root[$kk+'0'], $root, $slotdefault:'data-v-26bbdd82-default-0'}}" is="card$0060081a"></template></view></template>
+
+<template is="index$25a83bc2" data="{{ ...$root['0'], $root }}"/>

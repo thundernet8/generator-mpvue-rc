@@ -1,12 +1,11 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path');
-var env = require('./dev.env');
 
 module.exports = {
     build: {
         env: require('./prod.env'),
         index: path.resolve(__dirname, '../dist/index.html'),
-        assetsRoot: path.resolve(__dirname, '../dist'),
+        assetsRoot: path.resolve(__dirname, '../mp'),
         assetsSubDirectory: 'static',
         assetsPublicPath: '/',
         productionSourceMap: false,
@@ -23,8 +22,8 @@ module.exports = {
         bundleAnalyzerReport: process.env.npm_config_report
     },
     dev: {
-        env,
-        port: env.PORT,
+        env: require('./dev.env'),
+        port: 8080,
         // 在小程序开发者工具中不需要自动打开浏览器
         autoOpenBrowser: false,
         assetsSubDirectory: 'static',

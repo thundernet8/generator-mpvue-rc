@@ -3,121 +3,69 @@ var fs = require('fs');
 var utils = require('./utils');
 var config = require('../config');
 var vueLoaderConfig = require('./vue-loader.conf');
-var webpack = require('webpack');
-var StringReplacePlugin = require('string-replace-webpack-plugin');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+var MpvuePlugin = require('webpack-mpvue-asset-plugin');
+var glob = require('glob');
 
 function resolve(dir) {
     return path.join(__dirname, '..', dir);
 }
 
-function getEntry(dir, entryFile) {
-    const files = fs.readdirSync(dir);
-    return files.reduce((res, k) => {
-        const page = path.resolve(dir, k, entryFile);
-        if (fs.existsSync(page)) {
-            res[k] = page;
-        }
+function getEntry(rootSrc, pattern) {
+    var files = glob.sync(path.resolve(rootSrc, pattern));
+    return files.reduce((res, file) => {
+        var info = path.parse(file);
+        var key = info.dir.slice(rootSrc.length + 1) + '/' + info.name;
+        res[key] = path.resolve(file);
         return res;
     }, {});
 }
 
-const appEntry = { app: resolve('./src/main.js') };
-const pagesEntry = getEntry(resolve('./src/pages'), 'main.js');
-const entry = Object.assign({}, appEntry, pagesEntry);
+function getComponentsEntry(rootSrc, pattern) {
+    var files = glob.sync(path.resolve(rootSrc, pattern));
+    return files.reduce((res, file) => {
+        var info = path.parse(path.parse(file).dir);
+        res[info.name] = path.resolve(file);
+        return res;
+    }, {});
+}
 
-// const replaceStrLoader = StringReplacePlugin.replace({
-//     replacements: [
-//         {
-//             pattern: /(wx.)(navigateTo|redirectTo)\(/g,
-//             replacement(match, p1) {
-//                 return match.replace(p1, 'wx._');
-//             }
-//         }
-//     ]
-// });
+// const appEntry = { app: resolve('./src/main.js') }
+// const pagesEntry = getEntry(resolve('./src'), 'pages/**/main.js')
+const componentsEntry = getComponentsEntry(resolve('./src'), 'components/**/index.vue');
+console.log(componentsEntry);
+const entry = componentsEntry;
 
 module.exports = {
-    entry: entry,
+    // 如果要自定义生成的 dist 目录里面的文件路径，
+    // 可以将 entry 写成 {'toPath': 'fromPath'} 的形式，
+    // toPath 为相对于 dist 的路径, 例：index/demo，则生成的文件地址为 dist/index/demo.js
+    entry,
     target: require('mpvue-webpack-target'),
     output: {
         path: config.build.assetsRoot,
         filename: '[name].js',
-        publicPath:
-            process.env.NODE_ENV === 'production'
-                ? config.build.assetsPublicPath
-                : config.dev.assetsPublicPath
+        publicPath: process.env.NODE_ENV === 'production' ? config.build.assetsPublicPath : config.dev.assetsPublicPath
     },
     resolve: {
-        extensions: ['.js', '.ts', '.vue', '.json'],
+        extensions: ['.js', '.vue', '.json'],
         alias: {
             vue: 'mpvue',
             '@': resolve('src')
         },
-        symlinks: false
+        symlinks: false,
+        aliasFields: ['mpvue', 'weapp', 'browser'],
+        mainFields: ['browser', 'module', 'main']
     },
     module: {
         rules: [
             {
-                test: /\.css$/,
-                use: utils.cssLoaders().css
-            },
-            {
-                test: /\.less$/,
-                use: utils.cssLoaders().less
-            },
-            // {
-            //   test: /\.(js|vue)$/,
-            //   loader: 'eslint-loader',
-            //   enforce: 'pre',
-            //   include: [resolve('src'), resolve('test')],
-            //   options: {
-            //     formatter: require('eslint-friendly-formatter')
-            //   }
-            // },
-            {
-                test: /\.ts$/,
-                use: [
-                    {
-                        loader: 'babel-loader'
-                    },
-                    {
-                        loader: 'mpvue-loader',
-                        options: {
-                            checkMPEntry: true
-                        }
-                    },
-                    // {
-                    //     loader: replaceStrLoader
-                    // },
-                    {
-                        loader: 'ts-loader',
-                        options: {
-                            appendTsSuffixTo: [/\.vue$/]
-                        }
-                    }
-                ],
-                exclude: /node_modules/
-            },
-            {
                 test: /\.vue$/,
-                use: [
-                    {
-                        loader: 'mpvue-loader',
-                        options: vueLoaderConfig
-                    }
-                    // {
-                    //     loader: replaceStrLoader
-                    // }
-                ]
+                loader: 'mpvue-rc-loader',
+                options: vueLoaderConfig
             },
             {
                 test: /\.js$/,
-                include: [
-                    resolve('src'),
-                    resolve('test'),
-                    resolve('node_modules/common-mpvue')
-                ],
+                include: [resolve('src'), resolve('test')],
                 use: [
                     'babel-loader',
                     {
@@ -126,9 +74,6 @@ module.exports = {
                             checkMPEntry: true
                         }
                     }
-                    // {
-                    //     loader: replaceStrLoader
-                    // }
                 ]
             },
             {
@@ -157,21 +102,5 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        new webpack.DllReferencePlugin({
-            context: __dirname,
-            manifest: require('../.dll/manifest.json'),
-            name: `../../dll${
-                process.env.NODE_ENV === 'production' ? '' : '-dev'
-            }.js`,
-            sourceType: 'commonjs2'
-        }),
-        new StringReplacePlugin(),
-        new CopyWebpackPlugin([
-            {
-                from: path.resolve(__dirname, '../project.config.json'),
-                to: path.resolve(__dirname, '../dist')
-            }
-        ])
-    ]
+    plugins: [new MpvuePlugin()]
 };

@@ -9,12 +9,11 @@ var chalk = require('chalk');
 var webpack = require('webpack');
 var config = require('../config');
 var webpackConfig = require('./webpack.prod.conf');
-var depManager = require('./dep');
 
 var spinner = ora('building for production...');
 spinner.start();
 
-rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
+rm(path.join(config.build.assetsRoot, 'components/*'), err => {
     if (err) throw err;
     webpack(webpackConfig, function(err, stats) {
         spinner.stop();
@@ -33,8 +32,6 @@ rm(path.join(config.build.assetsRoot, config.build.assetsSubDirectory), err => {
             console.log(chalk.red('  Build failed with errors.\n'));
             process.exit(1);
         }
-
-        depManager.scanDeps();
 
         console.log(chalk.cyan('  Build complete.\n'));
         console.log(
