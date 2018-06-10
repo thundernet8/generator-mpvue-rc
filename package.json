@@ -1,6 +1,6 @@
 {
     "name": "generator-mpvue-rc",
-    "version": "0.2.3",
+    "version": "0.2.5",
     "description": "使用Mpvue开发原生小程序组件的脚手架",
     "main": "index.js",
     "repository": "git@github.com:thundernet8/generator-mpvue-rc.git",
