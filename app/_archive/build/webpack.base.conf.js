@@ -74,7 +74,7 @@ module.exports = {
                             replacements: [
                                 {
                                     pattern: /(this|self)\.\$emit\(/g,
-                                    replacement: function(match, p1, offset, string) {
+                                    replacement: function(match, p1) {
                                         return `${p1}.$mp.page.triggerEvent(`;
                                     }
                                 }
