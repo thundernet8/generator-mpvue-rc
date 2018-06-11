@@ -4,6 +4,7 @@ var utils = require('./utils');
 var config = require('../config');
 var vueLoaderConfig = require('./vue-loader.conf');
 var MpvuePlugin = require('webpack-mpvue-asset-plugin');
+var StringReplacePlugin = require('string-replace-webpack-plugin');
 var glob = require('glob');
 
 function resolve(dir) {
@@ -44,7 +45,10 @@ module.exports = {
     output: {
         path: config.build.assetsRoot,
         filename: '[name].js',
-        publicPath: process.env.NODE_ENV === 'production' ? config.build.assetsPublicPath : config.dev.assetsPublicPath
+        publicPath:
+            process.env.NODE_ENV === 'production'
+                ? config.build.assetsPublicPath
+                : config.dev.assetsPublicPath
     },
     resolve: {
         extensions: ['.js', '.vue', '.json'],
@@ -60,8 +64,24 @@ module.exports = {
         rules: [
             {
                 test: /\.vue$/,
-                loader: 'mpvue-rc-loader',
-                options: vueLoaderConfig
+                use: [
+                    {
+                        loader: 'mpvue-rc-loader',
+                        options: vueLoaderConfig
+                    },
+                    {
+                        loader: StringReplacePlugin.replace({
+                            replacements: [
+                                {
+                                    pattern: /(this|self)\.\$emit\(/g,
+                                    replacement: function(match, p1, offset, string) {
+                                        return `${p1}.$mp.page.triggerEvent(`;
+                                    }
+                                }
+                            ]
+                        })
+                    }
+                ]
             },
             {
                 test: /\.js$/,
@@ -102,5 +122,5 @@ module.exports = {
             }
         ]
     },
-    plugins: [new MpvuePlugin()]
+    plugins: [new MpvuePlugin(), new StringReplacePlugin()]
 };
